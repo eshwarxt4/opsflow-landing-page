@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
+import { BeforeAfterSection } from "@/components/BeforeAfterSection";
 import { ProblemSection } from "@/components/ProblemSection";
 import { ModuleSelector, ModuleType } from "@/components/ModuleSelector";
 import { SimulationView } from "@/components/simulation/SimulationView";
@@ -17,24 +18,30 @@ const Index = () => {
     document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleOpenEarlyAccess = () => {
+    setShowEarlyAccess(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <Header onOpenEarlyAccess={() => setShowEarlyAccess(true)} />
+      <Header onOpenEarlyAccess={handleOpenEarlyAccess} />
       
       <main>
         <HeroSection 
           onTryDemo={handleTryDemo}
-          onOpenEarlyAccess={() => setShowEarlyAccess(true)}
+          onOpenEarlyAccess={handleOpenEarlyAccess}
         />
         
-        <ProblemSection />
+        <BeforeAfterSection />
+        
+        <ProblemSection onTryDemo={handleTryDemo} />
         
         <ModuleSelector onSelectModule={setSelectedModule} />
         
-        <AhaMomentCTA onRequestAccess={() => setShowEarlyAccess(true)} />
+        <AhaMomentCTA onRequestAccess={handleOpenEarlyAccess} />
       </main>
 
-      <Footer />
+      <Footer onRequestAccess={handleOpenEarlyAccess} />
 
       <Chatbot />
 
