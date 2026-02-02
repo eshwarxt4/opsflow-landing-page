@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModuleType } from "@/components/ModuleSelector";
 import { getSimulationConfig, Task } from "./SimulationData";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,12 @@ import {
   User,
   Check,
   AlertCircle,
-  XCircle
+  XCircle,
+  Eye,
+  Users,
+  Briefcase,
+  ArrowRight,
+  Info
 } from "lucide-react";
 
 interface SimulationViewProps {
@@ -25,12 +30,45 @@ interface SimulationViewProps {
 }
 
 type ViewType = "dashboard" | "tasks" | "outlets" | "reports";
+type RoleType = "owner" | "manager" | "staff";
+
+interface GuideTip {
+  id: string;
+  title: string;
+  description: string;
+  position: "top" | "bottom" | "left" | "right";
+}
 
 export function SimulationView({ moduleType, onClose, onRequestAccess }: SimulationViewProps) {
   const config = getSimulationConfig(moduleType);
   const [currentView, setCurrentView] = useState<ViewType>("dashboard");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [tasks, setTasks] = useState(config.tasks);
+  const [currentRole, setCurrentRole] = useState<RoleType>("owner");
+  const [showGuideTip, setShowGuideTip] = useState(true);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const guideTips: GuideTip[] = [
+    {
+      id: "welcome",
+      title: "Welcome to the OpsFlow simulation",
+      description: "This is how your dashboard would look. Try switching between views and roles.",
+      position: "bottom",
+    },
+    {
+      id: "roles",
+      title: "Switch between roles",
+      description: "See how OpsFlow looks for owners, managers, and staff members.",
+      position: "bottom",
+    },
+    {
+      id: "tasks",
+      title: "Click any task to see details",
+      description: "You can mark tasks as done and see proof attachments.",
+      position: "bottom",
+    },
+  ];
 
   const today = new Date().toLocaleDateString('en-IN', { 
     weekday: 'long', 
@@ -52,6 +90,24 @@ export function SimulationView({ moduleType, onClose, onRequestAccess }: Simulat
       }
       return task;
     }));
+    setHasInteracted(true);
+    if (currentTipIndex < guideTips.length - 1) {
+      setCurrentTipIndex(prev => prev + 1);
+    } else {
+      setShowGuideTip(false);
+    }
+  };
+
+  const handleViewChange = (view: ViewType) => {
+    setCurrentView(view);
+    setHasInteracted(true);
+  };
+
+  const handleRoleChange = (role: RoleType) => {
+    setCurrentRole(role);
+    if (currentTipIndex < guideTips.length - 1) {
+      setCurrentTipIndex(prev => prev + 1);
+    }
   };
 
   const navItems = [
@@ -60,6 +116,19 @@ export function SimulationView({ moduleType, onClose, onRequestAccess }: Simulat
     { id: "outlets" as ViewType, label: "Outlets", icon: Building2 },
     { id: "reports" as ViewType, label: "Reports", icon: BarChart3 },
   ];
+
+  const roleLabels: Record<RoleType, { label: string; icon: React.ElementType; description: string }> = {
+    owner: { label: "Owner", icon: Briefcase, description: "Full visibility across all outlets" },
+    manager: { label: "Manager", icon: Users, description: "Manages assigned outlet" },
+    staff: { label: "Staff", icon: User, description: "Executes assigned tasks" },
+  };
+
+  // Filter tasks based on role
+  const getFilteredTasks = () => {
+    if (currentRole === "owner") return tasks;
+    if (currentRole === "manager") return tasks.filter(t => t.outlet === config.outlets[0]?.name);
+    return tasks.filter(t => t.assignee === "Rajesh" || t.assignee === "Priya" || t.assignee === "Ramesh").slice(0, 4);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex">
@@ -83,15 +152,37 @@ export function SimulationView({ moduleType, onClose, onRequestAccess }: Simulat
         <div className="p-4 border-b border-sidebar-border">
           <p className="text-xs text-sidebar-foreground/60 mb-1">Business</p>
           <p className="font-medium text-sm">{config.businessName}</p>
-          <p className="text-xs text-sidebar-foreground/60 mt-2 mb-1">Role</p>
-          <p className="font-medium text-sm">{config.role}</p>
+        </div>
+
+        {/* Role Switcher */}
+        <div className="p-4 border-b border-sidebar-border">
+          <p className="text-xs text-sidebar-foreground/60 mb-2">View as</p>
+          <div className="space-y-1">
+            {(Object.keys(roleLabels) as RoleType[]).map((role) => {
+              const RoleIcon = roleLabels[role].icon;
+              return (
+                <button
+                  key={role}
+                  onClick={() => handleRoleChange(role)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    currentRole === role 
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                      : "hover:bg-sidebar-accent text-sidebar-foreground"
+                  }`}
+                >
+                  <RoleIcon className="w-4 h-4" />
+                  {roleLabels[role].label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <nav className="flex-1 p-2">
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setCurrentView(item.id)}
+              onClick={() => handleViewChange(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 currentView === item.id 
                   ? "bg-sidebar-primary text-sidebar-primary-foreground" 
@@ -106,14 +197,18 @@ export function SimulationView({ moduleType, onClose, onRequestAccess }: Simulat
 
         <div className="p-4 border-t border-sidebar-border">
           <div className="p-3 bg-sidebar-accent rounded-lg">
-            <p className="text-xs text-sidebar-foreground/80 mb-2">This is a preview simulation</p>
+            <div className="flex items-center gap-2 mb-2">
+              <Info className="w-4 h-4 text-sidebar-foreground/60" />
+              <p className="text-xs text-sidebar-foreground/80">Preview Simulation</p>
+            </div>
+            <p className="text-xs text-sidebar-foreground/60 mb-3">Sample data · Not a live product</p>
             <Button 
               size="sm" 
               variant="default" 
               className="w-full text-xs"
               onClick={onRequestAccess}
             >
-              Request Early Access
+              I Want This for My Business
             </Button>
           </div>
         </div>
@@ -124,42 +219,82 @@ export function SimulationView({ moduleType, onClose, onRequestAccess }: Simulat
         {/* Header */}
         <header className="h-14 border-b border-border bg-card px-6 flex items-center justify-between">
           <div>
-            <h1 className="font-semibold text-foreground">
+            <h1 className="font-semibold text-foreground flex items-center gap-2">
               {navItems.find(n => n.id === currentView)?.label}
+              <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                {roleLabels[currentRole].label} View
+              </span>
             </h1>
             <p className="text-xs text-muted-foreground">{today}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <span className="text-xs text-muted-foreground">{config.outlets.length} outlets</span>
           </div>
         </header>
+
+        {/* Guide Tip */}
+        {showGuideTip && (
+          <div className="mx-6 mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg flex items-start gap-3">
+            <div className="p-1.5 bg-primary/20 rounded-full">
+              <Eye className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">{guideTips[currentTipIndex]?.title}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{guideTips[currentTipIndex]?.description}</p>
+            </div>
+            <button 
+              onClick={() => setShowGuideTip(false)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         <main className="flex-1 overflow-auto p-6 bg-muted/30">
           {currentView === "dashboard" && (
             <DashboardView 
               config={config} 
-              tasks={tasks}
+              tasks={getFilteredTasks()}
               doneTasks={doneTasks}
               pendingTasks={pendingTasks}
               missedTasks={missedTasks}
               totalTasks={totalTasks}
+              currentRole={currentRole}
             />
           )}
           {currentView === "tasks" && (
             <TasksView 
-              tasks={tasks} 
+              tasks={getFilteredTasks()} 
               onSelectTask={setSelectedTask}
               onToggleStatus={handleToggleStatus}
+              currentRole={currentRole}
             />
           )}
           {currentView === "outlets" && (
-            <OutletsView config={config} />
+            <OutletsView config={config} currentRole={currentRole} />
           )}
           {currentView === "reports" && (
             <ReportsView />
           )}
         </main>
+
+        {/* Aha moment CTA - appears after interaction */}
+        {hasInteracted && (
+          <div className="border-t border-border bg-card p-4">
+            <div className="max-w-2xl mx-auto flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">Like what you see?</p>
+                <p className="text-sm text-muted-foreground">This is how OpsFlow would work for your business.</p>
+              </div>
+              <Button onClick={onRequestAccess}>
+                I Want This
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Task Detail Modal */}
@@ -174,18 +309,28 @@ export function SimulationView({ moduleType, onClose, onRequestAccess }: Simulat
   );
 }
 
-function DashboardView({ config, tasks, doneTasks, pendingTasks, missedTasks, totalTasks }: {
+function DashboardView({ config, tasks, doneTasks, pendingTasks, missedTasks, totalTasks, currentRole }: {
   config: ReturnType<typeof getSimulationConfig>;
   tasks: Task[];
   doneTasks: number;
   pendingTasks: number;
   missedTasks: number;
   totalTasks: number;
+  currentRole: RoleType;
 }) {
   const completionRate = Math.round((doneTasks / totalTasks) * 100);
 
   return (
     <div className="space-y-6">
+      {/* Role-specific message */}
+      <div className="p-4 bg-card rounded-xl border border-border">
+        <p className="text-sm text-muted-foreground">
+          {currentRole === "owner" && "You're viewing all outlets across your business."}
+          {currentRole === "manager" && `You're managing ${config.outlets[0]?.name}. Focus on your outlet's tasks.`}
+          {currentRole === "staff" && "You're seeing tasks assigned to you for today."}
+        </p>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 bg-card rounded-xl border border-border">
@@ -220,38 +365,42 @@ function DashboardView({ config, tasks, doneTasks, pendingTasks, missedTasks, to
         </div>
       </div>
 
-      {/* Outlet Status */}
-      <div className="p-6 bg-card rounded-xl border border-border">
-        <h3 className="font-medium text-foreground mb-4">Outlet Status</h3>
-        <div className="space-y-3">
-          {config.outlets.map((outlet) => (
-            <div key={outlet.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${
-                  outlet.completionRate >= 90 ? 'bg-status-done' : 
-                  outlet.completionRate >= 70 ? 'bg-status-pending' : 'bg-status-missed'
-                }`} />
-                <span className="font-medium text-sm text-foreground">{outlet.name}</span>
+      {/* Outlet Status - Only for owner/manager */}
+      {(currentRole === "owner" || currentRole === "manager") && (
+        <div className="p-6 bg-card rounded-xl border border-border">
+          <h3 className="font-medium text-foreground mb-4">Outlet Status</h3>
+          <div className="space-y-3">
+            {(currentRole === "manager" ? [config.outlets[0]] : config.outlets).filter(Boolean).map((outlet) => (
+              <div key={outlet.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${
+                    outlet.completionRate >= 90 ? 'bg-status-done' : 
+                    outlet.completionRate >= 70 ? 'bg-status-pending' : 'bg-status-missed'
+                  }`} />
+                  <span className="font-medium text-sm text-foreground">{outlet.name}</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-muted-foreground">
+                    {outlet.pendingTasks} pending
+                  </span>
+                  <span className={`text-sm font-medium ${
+                    outlet.completionRate >= 90 ? 'text-status-done' : 
+                    outlet.completionRate >= 70 ? 'text-status-pending' : 'text-status-missed'
+                  }`}>
+                    {outlet.completionRate}%
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground">
-                  {outlet.pendingTasks} pending
-                </span>
-                <span className={`text-sm font-medium ${
-                  outlet.completionRate >= 90 ? 'text-status-done' : 
-                  outlet.completionRate >= 70 ? 'text-status-pending' : 'text-status-missed'
-                }`}>
-                  {outlet.completionRate}%
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Recent Tasks */}
       <div className="p-6 bg-card rounded-xl border border-border">
-        <h3 className="font-medium text-foreground mb-4">Recent Activity</h3>
+        <h3 className="font-medium text-foreground mb-4">
+          {currentRole === "staff" ? "Your Tasks Today" : "Recent Activity"}
+        </h3>
         <div className="space-y-2">
           {tasks.slice(0, 5).map((task) => (
             <div key={task.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
@@ -273,10 +422,11 @@ function DashboardView({ config, tasks, doneTasks, pendingTasks, missedTasks, to
   );
 }
 
-function TasksView({ tasks, onSelectTask, onToggleStatus }: {
+function TasksView({ tasks, onSelectTask, onToggleStatus, currentRole }: {
   tasks: Task[];
   onSelectTask: (task: Task) => void;
   onToggleStatus: (taskId: string) => void;
+  currentRole: RoleType;
 }) {
   const outlets = [...new Set(tasks.map(t => t.outlet))];
   const [selectedOutlet, setSelectedOutlet] = useState<string | null>(null);
@@ -287,26 +437,28 @@ function TasksView({ tasks, onSelectTask, onToggleStatus }: {
 
   return (
     <div className="space-y-6">
-      {/* Filter */}
-      <div className="flex gap-2 flex-wrap">
-        <Button
-          variant={selectedOutlet === null ? "default" : "outline"}
-          size="sm"
-          onClick={() => setSelectedOutlet(null)}
-        >
-          All Outlets
-        </Button>
-        {outlets.map((outlet) => (
+      {/* Filter - hidden for staff */}
+      {currentRole !== "staff" && (
+        <div className="flex gap-2 flex-wrap">
           <Button
-            key={outlet}
-            variant={selectedOutlet === outlet ? "default" : "outline"}
+            variant={selectedOutlet === null ? "default" : "outline"}
             size="sm"
-            onClick={() => setSelectedOutlet(outlet)}
+            onClick={() => setSelectedOutlet(null)}
           >
-            {outlet}
+            All Outlets
           </Button>
-        ))}
-      </div>
+          {outlets.map((outlet) => (
+            <Button
+              key={outlet}
+              variant={selectedOutlet === outlet ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedOutlet(outlet)}
+            >
+              {outlet}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* Task List */}
       <div className="space-y-2">
@@ -361,41 +513,53 @@ function TasksView({ tasks, onSelectTask, onToggleStatus }: {
   );
 }
 
-function OutletsView({ config }: { config: ReturnType<typeof getSimulationConfig> }) {
+function OutletsView({ config, currentRole }: { config: ReturnType<typeof getSimulationConfig>; currentRole: RoleType }) {
+  const displayOutlets = currentRole === "manager" 
+    ? [config.outlets[0]].filter(Boolean) 
+    : config.outlets;
+
   return (
-    <div className="grid md:grid-cols-2 gap-4">
-      {config.outlets.map((outlet) => (
-        <div key={outlet.id} className="p-6 bg-card rounded-xl border border-border">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-medium text-foreground">{outlet.name}</h3>
-            <span className={`text-lg font-bold ${
-              outlet.completionRate >= 90 ? 'text-status-done' : 
-              outlet.completionRate >= 70 ? 'text-status-pending' : 'text-status-missed'
-            }`}>
-              {outlet.completionRate}%
-            </span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
-            <div 
-              className={`h-full rounded-full ${
-                outlet.completionRate >= 90 ? 'bg-status-done' : 
-                outlet.completionRate >= 70 ? 'bg-status-pending' : 'bg-status-missed'
-              }`}
-              style={{ width: `${outlet.completionRate}%` }}
-            />
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              {outlet.totalTasks - outlet.pendingTasks} of {outlet.totalTasks} tasks done
-            </span>
-            {outlet.pendingTasks > 0 && (
-              <span className="text-status-pending font-medium">
-                {outlet.pendingTasks} pending
-              </span>
-            )}
-          </div>
+    <div className="space-y-6">
+      {currentRole === "staff" && (
+        <div className="p-4 bg-muted/50 rounded-lg">
+          <p className="text-sm text-muted-foreground">As staff, you focus on your assigned tasks. Outlet overview is available for managers and owners.</p>
         </div>
-      ))}
+      )}
+      
+      <div className="grid md:grid-cols-2 gap-4">
+        {displayOutlets.map((outlet) => (
+          <div key={outlet.id} className="p-6 bg-card rounded-xl border border-border">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium text-foreground">{outlet.name}</h3>
+              <span className={`text-lg font-bold ${
+                outlet.completionRate >= 90 ? 'text-status-done' : 
+                outlet.completionRate >= 70 ? 'text-status-pending' : 'text-status-missed'
+              }`}>
+                {outlet.completionRate}%
+              </span>
+            </div>
+            <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
+              <div 
+                className={`h-full rounded-full ${
+                  outlet.completionRate >= 90 ? 'bg-status-done' : 
+                  outlet.completionRate >= 70 ? 'bg-status-pending' : 'bg-status-missed'
+                }`}
+                style={{ width: `${outlet.completionRate}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                {outlet.totalTasks - outlet.pendingTasks} of {outlet.totalTasks} tasks done
+              </span>
+              {outlet.pendingTasks > 0 && (
+                <span className="text-status-pending font-medium">
+                  {outlet.pendingTasks} pending
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
