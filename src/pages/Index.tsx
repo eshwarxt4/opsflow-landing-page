@@ -1,12 +1,58 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Header } from "@/components/Header";
+import { HeroSection } from "@/components/HeroSection";
+import { ProblemSection } from "@/components/ProblemSection";
+import { ModuleSelector, ModuleType } from "@/components/ModuleSelector";
+import { SimulationView } from "@/components/simulation/SimulationView";
+import { AhaMomentCTA } from "@/components/AhaMomentCTA";
+import { EarlyAccessForm } from "@/components/EarlyAccessForm";
+import { Chatbot } from "@/components/Chatbot";
+import { Footer } from "@/components/Footer";
 
 const Index = () => {
+  const [showEarlyAccess, setShowEarlyAccess] = useState(false);
+  const [selectedModule, setSelectedModule] = useState<ModuleType | null>(null);
+
+  const handleTryDemo = () => {
+    document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header onOpenEarlyAccess={() => setShowEarlyAccess(true)} />
+      
+      <main>
+        <HeroSection 
+          onTryDemo={handleTryDemo}
+          onOpenEarlyAccess={() => setShowEarlyAccess(true)}
+        />
+        
+        <ProblemSection />
+        
+        <ModuleSelector onSelectModule={setSelectedModule} />
+        
+        <AhaMomentCTA onRequestAccess={() => setShowEarlyAccess(true)} />
+      </main>
+
+      <Footer />
+
+      <Chatbot />
+
+      {/* Modals */}
+      {showEarlyAccess && (
+        <EarlyAccessForm onClose={() => setShowEarlyAccess(false)} />
+      )}
+
+      {selectedModule && (
+        <SimulationView
+          moduleType={selectedModule}
+          onClose={() => setSelectedModule(null)}
+          onRequestAccess={() => {
+            setSelectedModule(null);
+            setShowEarlyAccess(true);
+          }}
+        />
+      )}
     </div>
   );
 };
