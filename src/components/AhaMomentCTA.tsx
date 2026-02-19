@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, CheckCircle2, Users, Building2, Clock } from "lucide-react";
+import { ArrowRight, Sparkles, Users, Zap } from "lucide-react";
 
 interface AhaMomentCTAProps {
   onRequestAccess: () => void;
@@ -7,73 +7,58 @@ interface AhaMomentCTAProps {
 
 export function AhaMomentCTA({ onRequestAccess }: AhaMomentCTAProps) {
   return (
-    <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
-      <div className="container mx-auto px-4">
+    <section className="py-24 relative overflow-hidden">
+      <div className="absolute inset-0 cta-gradient" />
+      <div className="absolute inset-0 grid-pattern opacity-10" />
+
+      <div className="container mx-auto px-4 relative">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary font-medium">Early Preview</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/15 border border-white/20 rounded-full mb-6 backdrop-blur-sm">
+            <Sparkles className="w-4 h-4 text-white" />
+            <span className="text-sm font-medium text-white/90">Join Early Access</span>
           </div>
-          
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            This is how OpsFlow would work for your business
+
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-5 leading-tight">
+            Ready to bring calm to your operations?
           </h2>
-          
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            No more chasing updates on WhatsApp. No more spreadsheet chaos. Just clear visibility into what's happening across your outlets, every day.
+
+          <p className="text-lg text-white/80 mb-10 max-w-xl mx-auto">
+            No more chasing updates. No more spreadsheet chaos. Just clear visibility into what's happening across your outlets, every day.
           </p>
 
-          {/* Value props */}
-          <div className="grid sm:grid-cols-3 gap-4 mb-10">
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <CheckCircle2 className="w-6 h-6 text-primary mx-auto mb-2" />
-              <p className="text-sm font-medium text-foreground">Clear task ownership</p>
-              <p className="text-xs text-muted-foreground mt-1">Every task has an owner</p>
-            </div>
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <Building2 className="w-6 h-6 text-primary mx-auto mb-2" />
-              <p className="text-sm font-medium text-foreground">All outlets in one view</p>
-              <p className="text-xs text-muted-foreground mt-1">See everything at a glance</p>
-            </div>
-            <div className="p-4 bg-card rounded-xl border border-border">
-              <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
-              <p className="text-sm font-medium text-foreground">Save 2+ hours daily</p>
-              <p className="text-xs text-muted-foreground mt-1">No more follow-up calls</p>
-            </div>
-          </div>
-
-          <Button variant="hero" size="xl" onClick={onRequestAccess} data-early-access-trigger>
+          <Button
+            size="lg"
+            onClick={onRequestAccess}
+            className="bg-white text-primary hover:bg-white/90 px-8 h-14 text-base font-bold shadow-elevated"
+            data-early-access-trigger
+          >
             I Want This for My Business
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
 
-          <p className="mt-6 text-sm text-muted-foreground">
-            We're validating demand before building fully. Join the waitlist to get early access + founding rates.
+          <p className="mt-6 text-sm text-white/60">
+            Free early access · No credit card · Get founding rates
           </p>
         </div>
 
-        {/* Social proof section */}
-        <div className="max-w-2xl mx-auto mt-16 p-6 bg-card rounded-xl border border-border">
-          <div className="flex items-center gap-4 mb-4">
+        {/* Social proof */}
+        <div className="max-w-md mx-auto mt-14 p-5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 text-center">
+          <div className="flex items-center justify-center gap-3 mb-3">
             <div className="flex -space-x-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div 
+              {["PS", "RK", "AR", "SM", "DT"].map((initials, i) => (
+                <div
                   key={i}
-                  className="w-8 h-8 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center"
+                  className="w-8 h-8 rounded-full bg-white/20 border-2 border-white/10 flex items-center justify-center backdrop-blur-sm"
                 >
-                  <Users className="w-3 h-3 text-primary" />
+                  <span className="text-[10px] font-bold text-white">{initials}</span>
                 </div>
               ))}
             </div>
             <div className="text-left">
-              <p className="text-sm font-medium text-foreground">Join 50+ business owners</p>
-              <p className="text-xs text-muted-foreground">Already on the early access waitlist</p>
+              <p className="text-sm font-semibold text-white">50+ business owners</p>
+              <p className="text-xs text-white/60">Already on the waitlist</p>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground italic">
-            "Finally, something simpler than WhatsApp groups for tracking daily ops. Can't wait for this to launch."
-            <span className="text-foreground font-medium"> — Restaurant owner, Bangalore</span>
-          </p>
         </div>
       </div>
     </section>

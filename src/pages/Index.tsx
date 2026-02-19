@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
-import { BeforeAfterSection } from "@/components/BeforeAfterSection";
 import { ProblemSection } from "@/components/ProblemSection";
+import { FeaturesSection } from "@/components/FeaturesSection";
+import { HowItWorksSection } from "@/components/HowItWorksSection";
+import { BeforeAfterSection } from "@/components/BeforeAfterSection";
 import { ModuleSelector, ModuleType } from "@/components/ModuleSelector";
 import { SimulationView } from "@/components/simulation/SimulationView";
+import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { AhaMomentCTA } from "@/components/AhaMomentCTA";
 import { EarlyAccessForm } from "@/components/EarlyAccessForm";
 import { Chatbot } from "@/components/Chatbot";
@@ -25,19 +28,25 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header onOpenEarlyAccess={handleOpenEarlyAccess} />
-      
+
       <main>
-        <HeroSection 
+        <HeroSection
           onTryDemo={handleTryDemo}
           onOpenEarlyAccess={handleOpenEarlyAccess}
         />
-        
+
+        <ProblemSection />
+
+        <FeaturesSection />
+
+        <HowItWorksSection />
+
         <BeforeAfterSection />
-        
-        <ProblemSection onTryDemo={handleTryDemo} />
-        
+
         <ModuleSelector onSelectModule={setSelectedModule} />
-        
+
+        <TestimonialsSection />
+
         <AhaMomentCTA onRequestAccess={handleOpenEarlyAccess} />
       </main>
 

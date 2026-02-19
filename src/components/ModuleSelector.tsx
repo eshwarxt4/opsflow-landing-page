@@ -1,232 +1,176 @@
-import { Button } from "@/components/ui/button";
-import { 
-  UtensilsCrossed, 
-  Scissors, 
-  ShoppingBag, 
-  Stethoscope, 
-  Building2, 
-  HardHat, 
-  GraduationCap, 
-  Warehouse,
-  Settings2,
-  ArrowRight,
-  CheckCircle2
-} from "lucide-react";
+import { ArrowRight, Utensils, Scissors, ShoppingBag, Stethoscope, Hotel, Building, GraduationCap, Package, Settings, CheckCircle2 } from "lucide-react";
 
-export type ModuleType = 
-  | "restaurant"
-  | "salon"
-  | "retail"
-  | "clinic"
-  | "hotel"
-  | "facility"
-  | "coaching"
-  | "warehouse"
-  | "custom";
-
-interface Module {
-  id: ModuleType;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  sampleTasks: string[];
-  available: boolean;
-}
-
-const modules: Module[] = [
-  {
-    id: "restaurant",
-    title: "Restaurants & QSR",
-    description: "Kitchen hygiene, inventory, opening/closing checklists",
-    icon: UtensilsCrossed,
-    sampleTasks: [
-      "Morning hygiene checklist",
-      "Cold storage temperature log",
-      "Inventory count",
-      "Opening checklist",
-    ],
-    available: true,
-  },
-  {
-    id: "salon",
-    title: "Salons & Personal Care",
-    description: "Station setup, equipment checks, appointment prep",
-    icon: Scissors,
-    sampleTasks: [
-      "Station sanitization",
-      "Equipment sterilization",
-      "Product inventory check",
-      "Appointment list review",
-    ],
-    available: true,
-  },
-  {
-    id: "retail",
-    title: "Retail Stores",
-    description: "Stock counts, display setup, cash reconciliation",
-    icon: ShoppingBag,
-    sampleTasks: [
-      "Morning stock count",
-      "Display arrangement",
-      "Cash float verification",
-      "End-of-day reconciliation",
-    ],
-    available: true,
-  },
-  {
-    id: "clinic",
-    title: "Clinics & Diagnostics",
-    description: "Equipment calibration, patient prep, compliance",
-    icon: Stethoscope,
-    sampleTasks: [
-      "Equipment calibration",
-      "Sample collection area prep",
-      "Reagent stock check",
-      "Waste disposal log",
-    ],
-    available: true,
-  },
-  {
-    id: "hotel",
-    title: "Hotels & Hostels",
-    description: "Room turnover, amenity checks, front desk ops",
-    icon: Building2,
-    sampleTasks: [
-      "Room turnover check",
-      "Common area cleaning",
-      "Breakfast service check",
-      "Amenity restocking",
-    ],
-    available: true,
-  },
-  {
-    id: "facility",
-    title: "Facility Management",
-    description: "Maintenance rounds, security checks, cleaning logs",
-    icon: HardHat,
-    sampleTasks: [
-      "Security round - morning",
-      "HVAC system check",
-      "Fire safety inspection",
-      "Cleaning verification",
-    ],
-    available: true,
-  },
-  {
-    id: "coaching",
-    title: "Coaching Centers",
-    description: "Class prep, attendance, resource management",
-    icon: GraduationCap,
-    sampleTasks: [
-      "Classroom setup",
-      "Attendance system ready",
-      "Study material check",
-      "Lab equipment prep",
-    ],
-    available: true,
-  },
-  {
-    id: "warehouse",
-    title: "Warehouses & Logistics",
-    description: "Receiving, dispatch, safety checks, inventory",
-    icon: Warehouse,
-    sampleTasks: [
-      "Receiving dock prep",
-      "Forklift safety check",
-      "Inventory verification",
-      "Dispatch documentation",
-    ],
-    available: true,
-  },
-  {
-    id: "custom",
-    title: "Custom Setup",
-    description: "Configure OpsFlow for your specific business type",
-    icon: Settings2,
-    sampleTasks: [
-      "Opening checklist",
-      "Daily inspection",
-      "Inventory check",
-      "Closing procedures",
-    ],
-    available: true,
-  },
-];
+export type ModuleType = "restaurant" | "salon" | "retail" | "clinic" | "hotel" | "facility" | "coaching" | "warehouse" | "custom";
 
 interface ModuleSelectorProps {
-  onSelectModule: (moduleId: ModuleType) => void;
+  onSelectModule: (module: ModuleType) => void;
 }
+
+const modules: {
+  type: ModuleType;
+  label: string;
+  icon: React.ElementType;
+  description: string;
+  gradient: string;
+  iconBg: string;
+  tasks: string[];
+}[] = [
+    {
+      type: "restaurant",
+      label: "Restaurants & QSR",
+      icon: Utensils,
+      description: "Kitchen hygiene, inventory, opening/closing checklists",
+      gradient: "from-orange-500 to-red-500",
+      iconBg: "bg-gradient-to-br from-orange-500 to-red-500",
+      tasks: ["Morning hygiene checklist", "Cold storage temperature log", "Inventory count"],
+    },
+    {
+      type: "salon",
+      label: "Salons & Spas",
+      icon: Scissors,
+      description: "Station setup, equipment checks, appointment prep",
+      gradient: "from-pink-500 to-rose-500",
+      iconBg: "bg-gradient-to-br from-pink-500 to-rose-500",
+      tasks: ["Station sanitization", "Equipment sterilization", "Product inventory check"],
+    },
+    {
+      type: "retail",
+      label: "Retail Stores",
+      icon: ShoppingBag,
+      description: "Stock counts, display setup, cash reconciliation",
+      gradient: "from-blue-500 to-cyan-500",
+      iconBg: "bg-gradient-to-br from-blue-500 to-cyan-500",
+      tasks: ["Morning stock count", "Display arrangement", "Cash float verification"],
+    },
+    {
+      type: "clinic",
+      label: "Clinics & Diagnostics",
+      icon: Stethoscope,
+      description: "Equipment calibration, patient prep, compliance tracking",
+      gradient: "from-emerald-500 to-teal-500",
+      iconBg: "bg-gradient-to-br from-emerald-500 to-teal-500",
+      tasks: ["Equipment calibration", "Sample area prep", "Reagent stock check"],
+    },
+    {
+      type: "hotel",
+      label: "Hotels & Hostels",
+      icon: Hotel,
+      description: "Room turnover, amenity checks, front desk procedures",
+      gradient: "from-violet-500 to-purple-500",
+      iconBg: "bg-gradient-to-br from-violet-500 to-purple-500",
+      tasks: ["Room turnover check", "Common area cleaning", "Breakfast service"],
+    },
+    {
+      type: "facility",
+      label: "Facility Management",
+      icon: Building,
+      description: "Maintenance rounds, security checks, HVAC monitoring",
+      gradient: "from-slate-500 to-zinc-600",
+      iconBg: "bg-gradient-to-br from-slate-500 to-zinc-600",
+      tasks: ["Security round", "HVAC system check", "Elevator inspection"],
+    },
+    {
+      type: "coaching",
+      label: "Coaching Centers",
+      icon: GraduationCap,
+      description: "Classroom setup, attendance, study material distribution",
+      gradient: "from-amber-500 to-yellow-500",
+      iconBg: "bg-gradient-to-br from-amber-500 to-yellow-500",
+      tasks: ["Classroom setup", "Attendance system", "Material distribution"],
+    },
+    {
+      type: "warehouse",
+      label: "Warehouses & Logistics",
+      icon: Package,
+      description: "Receiving docks, safety checks, inventory management",
+      gradient: "from-indigo-500 to-blue-600",
+      iconBg: "bg-gradient-to-br from-indigo-500 to-blue-600",
+      tasks: ["Receiving dock prep", "Forklift safety check", "Inventory scan"],
+    },
+    {
+      type: "custom",
+      label: "Custom Setup",
+      icon: Settings,
+      description: "Configure OpsFlow for any industry or workflow",
+      gradient: "from-primary to-accent",
+      iconBg: "bg-gradient-to-br from-primary to-accent",
+      tasks: ["Custom checklist", "Team assignments", "Compliance tracking"],
+    },
+  ];
 
 export function ModuleSelector({ onSelectModule }: ModuleSelectorProps) {
   return (
-    <section id="modules" className="py-20">
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            See how OpsFlow works for your business
+    <section id="modules" className="py-24 relative overflow-hidden">
+      <div className="absolute inset-0 dot-pattern opacity-30" />
+      <div className="absolute top-10 -left-20 w-72 h-72 bg-accent/4 rounded-full blur-[100px] animate-float" style={{ animationDelay: '1s' }} />
+      <div className="absolute bottom-20 -right-20 w-60 h-60 bg-primary/5 rounded-full blur-[80px] animate-float" style={{ animationDelay: '4s' }} />
+
+      <div className="container mx-auto px-4 relative">
+        <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full mb-4">
+            <span className="text-sm font-medium text-primary">Interactive Simulations</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
+            See how OpsFlow works for{" "}
+            <span className="text-gradient italic">your</span>{" "}
+            <span className="text-gradient">business</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Choose your industry to explore a live simulation with realistic sample data.
+            Choose your industry to explore a live simulation with realistic sample data.<br className="hidden sm:block" />
+            Switch between Owner, Manager, and Staff views.
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto stagger-children">
           {modules.map((module) => (
             <div
-              key={module.id}
-              className="group p-6 rounded-xl bg-card border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg cursor-pointer"
-              onClick={() => onSelectModule(module.id)}
+              key={module.type}
+              className="group bg-card rounded-2xl border border-border hover:border-primary/30 transition-all duration-300 overflow-hidden cursor-pointer hover:shadow-elevated"
+              onClick={() => onSelectModule(module.type)}
             >
-              <div className="flex flex-col h-full">
-                <div className="p-3 rounded-lg bg-primary/10 text-primary w-fit mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <module.icon className="w-5 h-5" />
+              {/* Infographic header */}
+              <div className={`relative h-28 bg-gradient-to-br ${module.gradient} overflow-hidden flex items-center justify-center`}>
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 opacity-10">
+                  <svg width="100%" height="100%">
+                    <pattern id={`grid-${module.type}`} width="20" height="20" patternUnits="userSpaceOnUse">
+                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" strokeWidth="0.5" />
+                    </pattern>
+                    <rect width="100%" height="100%" fill={`url(#grid-${module.type})`} />
+                  </svg>
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">{module.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{module.description}</p>
-                
-                {/* Sample tasks preview */}
-                <div className="space-y-1.5 mb-4 flex-1">
-                  {module.sampleTasks.slice(0, 3).map((task, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <CheckCircle2 className="w-3 h-3 text-primary/50" />
-                      <span className="truncate">{task}</span>
+                {/* Large icon */}
+                <div className="relative w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <module.icon className="w-7 h-7 text-white" />
+                </div>
+                {/* Label overlay */}
+                <div className="absolute bottom-2 left-3">
+                  <h3 className="font-display font-bold text-white text-sm drop-shadow-sm">{module.label}</h3>
+                </div>
+                {/* Decorative circles */}
+                <div className="absolute -top-4 -right-4 w-16 h-16 bg-white/10 rounded-full" />
+                <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-white/5 rounded-full" />
+              </div>
+
+              {/* Content */}
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-3">{module.description}</p>
+                <div className="space-y-1.5 mb-4">
+                  {module.tasks.map((task, j) => (
+                    <div key={j} className="flex items-center gap-2 text-xs text-foreground/60">
+                      <CheckCircle2 className="w-3 h-3 text-primary/40 flex-shrink-0" />
+                      {task}
                     </div>
                   ))}
-                  {module.sampleTasks.length > 3 && (
-                    <p className="text-xs text-primary/70 pl-5">
-                      +{module.sampleTasks.length - 3} more tasks
-                    </p>
-                  )}
                 </div>
-                
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-between group-hover:bg-primary/10 group-hover:text-primary"
-                >
-                  View Live Simulation
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+
+                <button className="flex items-center gap-1.5 text-primary text-xs font-semibold group-hover:gap-2.5 transition-all">
+                  Try Live Simulation
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Scaling message */}
-        <div className="max-w-2xl mx-auto mt-12 p-6 bg-primary/5 rounded-xl border border-primary/20">
-          <div className="flex items-start gap-4">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground mb-1">
-                Works from 3 outlets to 30+
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                What starts as a simple checklist system grows with your business. Same calm interface, whether you're running 3 outlets or 30.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
